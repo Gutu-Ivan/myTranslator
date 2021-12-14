@@ -92,5 +92,24 @@ public class WordTranslatorRepository {
         }
     }
 
-
+    public String getWordDefinitions(@PathVariable String word, String language){
+        String FileName = "src/main/resources/translations/" +  language + "/"  + word + ".json";
+        try {
+            Reader reader = Files.newBufferedReader(Paths.get(FileName));
+            Word wordModel = gson.fromJson(reader, Word.class);
+            reader.close();
+            try {
+                for(Object  definition : wordModel.definitions) {
+                    return  definition.toString();
+                }
+                return "Word found";
+            }
+            catch (Exception e) {
+                return "word not found";
+            }
+        }
+        catch (Exception e) {
+            return "word not found";
+        }
+    }
 }

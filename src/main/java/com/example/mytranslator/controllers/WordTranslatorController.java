@@ -3,6 +3,7 @@ package com.example.mytranslator.controllers;
 import com.example.mytranslator.models.Definition;
 import com.example.mytranslator.models.Word;
 import com.example.mytranslator.repositories.WordTranslatorRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -11,7 +12,7 @@ public class WordTranslatorController {
     private WordTranslatorRepository wordTranslatorRepository = new WordTranslatorRepository();
 
     @GetMapping(path = "translate/word/{fromLanguage}/{toLanguage}/{word}")
-    public String translateWord(@PathVariable String word, String fromLanguage, String toLanguage){
+    public String translateWord(@PathVariable String word, @PathVariable String fromLanguage, @PathVariable String toLanguage){
         return wordTranslatorRepository.translateWord(word, fromLanguage, toLanguage);
     }
 
@@ -30,7 +31,7 @@ public class WordTranslatorController {
         return wordTranslatorRepository.addDefinitionForWord(word, language, definition);
     }
 
-    @DeleteMapping(path = "translate/word/{language}/{word}/{dictType}")
+    @DeleteMapping(path = "translate/word/{language}/{word}/{dictionary}")
     public boolean removeWordDefinition(@PathVariable String word, @PathVariable String language, @RequestBody String dictionary){
         return wordTranslatorRepository.removeWordDefinition(word, language, dictionary);
     }
@@ -39,4 +40,10 @@ public class WordTranslatorController {
 //    public String translateSentence(@PathVariable String sentence, String fromLanguage, String toLanguage){
 //        return wordTranslatorRepository.translateSentence(sentence, fromLanguage, toLanguage);
 //    }
+
+    @GetMapping(path = "translate/word/{language}/{word}")
+    public String getWordDefinitions(@PathVariable String word, @PathVariable String language){
+        return wordTranslatorRepository.getWordDefinitions(word, language);
+    }
+
 }
