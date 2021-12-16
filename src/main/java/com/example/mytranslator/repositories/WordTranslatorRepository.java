@@ -5,21 +5,18 @@ import com.example.mytranslator.models.Word;
 import com.google.gson.Gson;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.Reader;
-import java.io.Writer;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class WordTranslatorRepository {
     private Gson gson = new Gson();
 
-    public String translateWord(String word, String fromLanguage, String toLanguage){
-        String fromFileName = "src/main/resources/translations/" +  fromLanguage + "/"  + word + ".json";
-        String toFileName = "src/main/resources/translations/" +  toLanguage + "/"  + word + ".json";
+    public String translateWord(String word, String language){
+        String fileName = "src/main/resources/translations/" +  language + "/"  + word + ".json";
         try {
-            Reader reader = Files.newBufferedReader(Paths.get(fromFileName, toFileName));
+            Reader reader = Files.newBufferedReader(Paths.get(fileName));
             Word wordModel = gson.fromJson(reader, Word.class);
             reader.close();
             return wordModel.toString();
@@ -92,24 +89,59 @@ public class WordTranslatorRepository {
         }
     }
 
-    public String getWordDefinitions(@PathVariable String word, String language){
-        String FileName = "src/main/resources/translations/" +  language + "/"  + word + ".json";
+    public ArrayList<Definition> getWordDefinitions(String word, String language){
+        String fileName = "src/main/resources/translations/" +  language + "/"  + word + ".json";
+        ArrayList<Definition> definitionsArr = new ArrayList<Definition>();
         try {
-            Reader reader = Files.newBufferedReader(Paths.get(FileName));
+            Reader reader = Files.newBufferedReader(Paths.get(fileName));
             Word wordModel = gson.fromJson(reader, Word.class);
             reader.close();
             try {
-                for(Object  definition : wordModel.definitions) {
-                    return  definition.toString();
+                for(Definition  definition : wordModel.definitions) {
+                    definitionsArr.add(definition);
                 }
-                return "Word found";
+                return definitionsArr;
             }
             catch (Exception e) {
-                return "word not found";
+                return definitionsArr;
             }
         }
         catch (Exception e) {
-            return "word not found";
+            return definitionsArr;
+        }
+    }
+
+    public String translateSentence(String sentence, String language){
+        String translation = new String();
+        String[] words = sentence.split(" ");
+        try{
+            for (String word: words){
+                String fileName = "src/main/resources/translations/" +  language + "/"  + word + ".json";
+                Reader reader = Files.newBufferedReader(Paths.get(fileName));
+                Word wordModel = gson.fromJson(reader, Word.class);
+                translation += " " + wordModel.word.toString();
+            }
+            return translation;
+        }
+        catch (Exception e){
+            return "Words not found";
+        }
+    }
+
+    public String exportDictionary(String word, String language){
+        String fileName = "src/main/resources/translations/" +  language + "/"  + word + ".json";
+        try {
+            File jsonDictionary = new File("src/main/resources/data/" + word + "_dictionary.json");
+            Reader reader = Files.newBufferedReader(Paths.get(fileName));
+            Word wordModel = gson.fromJson(reader, Word.class);
+            reader.close();
+            FileWriter writer = new FileWriter (jsonDictionary);
+            writer.write(wordModel.definitions.toString());
+            jsonDictionary.createNewFile();
+            writer.close();
+            return "Dictionary created";
+        } catch (Exception e) {
+            return "Dictionary not created";
         }
     }
 }

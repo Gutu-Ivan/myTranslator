@@ -12,6 +12,14 @@ public class Word {
     public ArrayList<String> plural;
     public ArrayList<Definition> definitions;
 
+    public ArrayList<Definition> getDefinitions() {
+        return definitions;
+    }
+
+    public void setDefinitions(ArrayList<Definition> definitions) {
+        this.definitions = definitions;
+    }
+
     @Override
     public String toString() {
         Gson gson = new Gson();
